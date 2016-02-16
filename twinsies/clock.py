@@ -9,7 +9,7 @@ sched = BlockingScheduler()
 
 @sched.scheduled_job('interval', minutes=16)
 @profile
-def twinsy_finder(fetch_size=10000):
+def twinsy_finder(fetch_size=5000):
     print("Running twinsy finder...")
     fetched_tweets = fetch_tweets('Kanye', fetch_size=fetch_size)
     tweets = dig_for_twins(fetched_tweets)
@@ -20,6 +20,5 @@ def twinsy_finder(fetch_size=10000):
         print("No twins found.")
 
 if __name__ == '__main__':
-    twinsy_finder()
     print("Starting scheduler")
     sched.start()

@@ -13,7 +13,6 @@ def twinsy_finder(fetch_size=10000):
     print("Running twinsy finder...")
     fetched_tweets = fetch_tweets('Kanye', fetch_size=fetch_size)
     tweets = dig_for_twins(fetched_tweets)
-    del fetched_tweets
     if tweets:
         print("Twins found, updating status.")
         update_status(tweets)

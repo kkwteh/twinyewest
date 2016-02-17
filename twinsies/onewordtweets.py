@@ -57,6 +57,7 @@ class StdOutListener(StreamListener):
                         tweet_pair(words_encountered, key)
                         del words_encountered[key]
                         last_updated['value'] = datetime.now().timestamp()
+                        break
         return True
 
     def on_error(self, status):
@@ -67,23 +68,13 @@ def tweet_pair(words_encountered, key):
     name1, tweet_id1, link1 = words_encountered[key][-1]
     name2, tweet_id2, link2 = words_encountered[key][-2]
     if name1 != name2:
-        tweet1 = "{key}. @{name1} @{name2} {link1}".format(
+        tweet1 = "{key}. {link1} {link2}".format(
             key=key,
-            name1=name1,
-            name2=name2,
-            link1=link1
-        )
-
-        tweet2 = "{key}. @{name1} @{name2} {link2}".format(
-            key=key,
-            name1=name1,
-            name2=name2,
+            link1=link1,
             link2=link2
         )
 
         twitter_api().update_status(tweet1)
-        time.sleep(3)
-        twitter_api().update_status(tweet2)
 
 def is_one_word_tweet(tweet_dict, words):
     return (len(words) == 2 and

@@ -65,7 +65,7 @@ class OneWordTweetListener(StreamListener):
 def tweet_pair(words_encountered, key):
     tweeters = set()
     names = [name for name, _, _ in words_encountered[key]]
-    if len(names) = len(set(names)):
+    if len(names) == len(set(names)):
         api = twitter_api()
         for _, tweet_id, _ in words_encountered[key]:
             api.retweet(tweet_id)

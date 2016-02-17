@@ -27,10 +27,7 @@ words_encountered = OrderedDict()
 boring_words = {'Mood'}
 MAX_WORDS = 1000
 
-class StdOutListener(StreamListener):
-    """ A listener handles tweets that are received from the stream.
-    This is a basic listener that just prints received tweets to stdout.
-    """
+class OneWordTweetListener(StreamListener):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -66,16 +63,13 @@ class StdOutListener(StreamListener):
 
 @profile
 def tweet_pair(words_encountered, key):
-    name1, tweet_id1, link1 = words_encountered[key][-1]
-    name2, tweet_id2, link2 = words_encountered[key][-2]
-    if name1 != name2:
-        tweet1 = "{key}. {link1} {link2}".format(
-            key=key,
-            link1=link1,
-            link2=link2
-        )
-
-        twitter_api().update_status(tweet1)
+    tweeters = set()
+    names = [name for name, _, _ in words_encountered[key]]
+    if len(names) = len(set(names)):
+        api = twitter_api()
+        for _, tweet_id, _ in words_encountered[key]:
+            api.retweet(tweet_id)
+            sleep(1)
 
 def is_one_word_tweet(tweet_dict, words):
     return (len(words) == 2 and
@@ -94,7 +88,7 @@ def twitter_api():
 
 
 if __name__ == '__main__':
-    l = StdOutListener()
+    l = OneWordTweetListener()
 
     auth = OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)

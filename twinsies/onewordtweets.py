@@ -24,17 +24,19 @@ class StdOutListener(StreamListener):
         self.tweet = None
 
     def on_data(self, data):
-        tweet_dict = json.loads(data)
-        words = tweet_dict['text'].strip().split() if 'text' in tweet_dict else []
-        if (len(words) == 2 and words[1].startswith('https') and 'media' in tweet_dict['entities']
-            and not tweet_dict['possibly_sensitive']):
-            print('tweet found')
-            self.tweet = json.loads(data)
+        if (datetime.now().timestamp() - last_updated['value']) > 900:
+            tweet_dict = json.loads(data)
+            words = tweet_dict['text'].strip().split() if 'text' in tweet_dict else []
+            if (len(words) == 2 and words[1].startswith('https') and 'media' in tweet_dict['entities']
+                and not tweet_dict['possibly_sensitive']):
+                print('tweet found')
+                self.tweet = json.loads(data)
 
-        if (datetime.now().timestamp() - last_updated['value']) > 900 and self.tweet:
-            print('retweeting')
-            twitter_api().retweet(self.tweet['id'])
-            last_updated['value'] = datetime.now().timestamp()
+            if self.tweet:
+                print('retweeting')
+                twitter_api().retweet(self.tweet['id'])
+                self.tweet = None
+                last_updated['value'] = datetime.now().timestamp()
         return True
 
     def on_error(self, status):

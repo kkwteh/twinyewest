@@ -69,7 +69,7 @@ def tweet_pair(words_encountered, key):
         api = twitter_api()
         for _, tweet_id, _ in words_encountered[key]:
             api.retweet(tweet_id)
-            sleep(1)
+            time.sleep(1)
 
 def is_one_word_tweet(tweet_dict, words):
     return (len(words) == 2 and

@@ -35,11 +35,12 @@ class StdOutListener(StreamListener):
         words = tweet_dict['text'].strip().split() if 'text' in tweet_dict else []
         if is_one_word_tweet(tweet_dict, words):
             print('tweet found')
-            if normalize_word(words[0]) in words_encountered:
+            normalized_word = normalize_word(words[0])
+            if normalized_word in words_encountered:
                 print('twin found')
-                words_encountered[words[0]].append((tweet_dict['user']['screen_name'], tweet_dict['id'], words[1]))
+                words_encountered[normalized_word].append((tweet_dict['user']['screen_name'], tweet_dict['id'], words[1]))
             else:
-                words_encountered[words[0]] = [(tweet_dict['user']['screen_name'], tweet_dict['id'], words[1])]
+                words_encountered[normalized_word] = [(tweet_dict['user']['screen_name'], tweet_dict['id'], words[1])]
 
             print(words_encountered)
 
@@ -59,6 +60,7 @@ class StdOutListener(StreamListener):
     def on_error(self, status):
         print(status)
 
+@profile
 def tweet_pair(words_encountered, key):
     name1, tweet_id1, link1 = words_encountered[key][-1]
     name2, tweet_id2, link2 = words_encountered[key][-2]

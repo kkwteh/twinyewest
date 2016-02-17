@@ -9,6 +9,8 @@ from datetime import datetime
 from memory_profiler import profile
 import os
 
+from collections import OrderedDict
+
 CONSUMER_KEY = os.environ['OWT_API_KEY']
 CONSUMER_SECRET = os.environ['OWT_API_SECRET']
 ACCESS_TOKEN = os.environ['OWT_ACCESS_TOKEN']
@@ -20,7 +22,7 @@ LETTERS = list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 last_updated = {'value': datetime(1999,1,1).timestamp()}
 
 #Maps word to (screen_name, tweet_id, link)
-words_encountered = {}
+words_encountered = OrderedDict()
 MAX_WORDS = 1000
 
 class StdOutListener(StreamListener):
@@ -42,7 +44,6 @@ class StdOutListener(StreamListener):
             else:
                 words_encountered[normalized_word] = [(tweet_dict['user']['screen_name'], tweet_dict['id'], words[1])]
 
-            print(words_encountered)
 
             if len(words_encountered) > MAX_WORDS:
                 old_key = list(words_encountered.keys())[0]

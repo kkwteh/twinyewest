@@ -68,7 +68,10 @@ def tweet_pair(words_encountered, key):
     if len(names) == len(set(names)):
         api = twitter_api()
         for _, tweet_id, _ in words_encountered[key]:
-            api.retweet(tweet_id)
+            try:
+                api.retweet(tweet_id)
+            except tweepy.TweepError:
+                pass
             time.sleep(1)
 
 def is_one_word_tweet(tweet_dict, words):

@@ -15,34 +15,70 @@ ACCESS_TOKEN = os.environ['OWT_ACCESS_TOKEN']
 ACCESS_TOKEN_SECRET = os.environ['OWT_ACCESS_TOKEN_SECRET']
 
 TWEET_PERIOD_SECONDS = 300
+LETTERS = list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
 last_updated = {'value': datetime(1999,1,1).timestamp()}
+
+#Maps word to (screen_name, tweet_id, link)
+words_encountered = {}
+MAX_WORDS = 1000
+
 class StdOutListener(StreamListener):
     """ A listener handles tweets that are received from the stream.
     This is a basic listener that just prints received tweets to stdout.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.tweet = None
 
     def on_data(self, data):
-        if (datetime.now().timestamp() - last_updated['value']) > TWEET_PERIOD_SECONDS:
-            tweet_dict = json.loads(data)
-            words = tweet_dict['text'].strip().split() if 'text' in tweet_dict else []
-            if (len(words) == 2 and words[1].startswith('https') and 'media' in tweet_dict['entities']
-                and not tweet_dict['possibly_sensitive']):
-                print('tweet found')
-                self.tweet = json.loads(data)
+        tweet_dict = json.loads(data)
+        words = tweet_dict['text'].strip().split() if 'text' in tweet_dict else []
+        if is_one_word_tweet(tweet_dict, words):
+            print('tweet found')
+            if normalize_word(words[0]) in words_encountered:
+                print('twin found')
+                words_encountered[words[0]].append((tweet_dict['user']['screen_name'], tweet_dict['id'], words[1]))
+            else:
+                words_encountered[words[0]] = [(tweet_dict['user']['screen_name'], tweet_dict['id'], words[1])]
 
-            if self.tweet:
-                print('retweeting')
-                twitter_api().retweet(self.tweet['id'])
-                self.tweet = None
-                last_updated['value'] = datetime.now().timestamp()
+            print(words_encountered)
+
+            if len(words_encountered) > MAX_WORDS:
+                old_key = list(words_encountered.keys())[0]
+                del words_encountered[old_key]
+
+            if (datetime.now().timestamp() - last_updated['value']) > TWEET_PERIOD_SECONDS:
+                for key in list(words_encountered.keys())[::-1]:
+                    if len(words_encountered[key]) > 1:
+                        print('tweeting pair')
+                        tweet_pair(words_encountered, key)
+                        del words_encountered[key]
+                        last_updated['value'] = datetime.now().timestamp()
         return True
 
     def on_error(self, status):
         print(status)
+
+def tweet_pair(words_encountered, key):
+    name1, tweet_id1, link1 = words_encountered[key][-1]
+    name2, tweet_id2, link2 = words_encountered[key][-2]
+    tweet = "{key}. @{name1} @{name2} {link1} {link2}".format(
+        key=key,
+        name1=name1,
+        name2=name2,
+        link1=link1,
+        link2=link2
+    )
+    twitter_api().update_status(tweet)
+
+def is_one_word_tweet(tweet_dict, words):
+    return (len(words) == 2 and
+        words[1].startswith('https') and
+        'media' in tweet_dict['entities'] and
+        not tweet_dict['possibly_sensitive'])
+
+def normalize_word(word):
+    return ''.join([x for x in word if x in LETTERS]).title()
 
 @profile
 def twitter_api():
@@ -58,5 +94,4 @@ if __name__ == '__main__':
     auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
     stream = Stream(auth, l)
-    letters = list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    stream.filter(track=letters, languages=['en'])
+    stream.filter(track=LETTERS, languages=['en'])

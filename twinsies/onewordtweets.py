@@ -8,6 +8,7 @@ from tweepy import Stream
 from datetime import datetime
 from memory_profiler import profile
 import os
+import time
 
 from collections import OrderedDict
 
@@ -36,8 +37,8 @@ class StdOutListener(StreamListener):
         tweet_dict = json.loads(data)
         words = tweet_dict['text'].strip().split() if 'text' in tweet_dict else []
         if is_one_word_tweet(tweet_dict, words):
-            print('tweet found')
             normalized_word = normalize_word(words[0])
+            print('tweet found: %s' % normalized_word)
             if normalized_word in words_encountered:
                 print('twin found')
                 words_encountered[normalized_word].append((tweet_dict['user']['screen_name'], tweet_dict['id'], words[1]))
@@ -81,6 +82,7 @@ def tweet_pair(words_encountered, key):
         )
 
         twitter_api().update_status(tweet1)
+        time.sleep(3)
         twitter_api().update_status(tweet2)
 
 def is_one_word_tweet(tweet_dict, words):

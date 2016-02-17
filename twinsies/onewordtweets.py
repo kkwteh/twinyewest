@@ -24,6 +24,7 @@ last_updated = {'value': datetime(1999,1,1).timestamp()}
 
 #Maps word to (screen_name, tweet_id, link)
 words_encountered = OrderedDict()
+boring_words = {'Mood'}
 MAX_WORDS = 1000
 
 class StdOutListener(StreamListener):
@@ -52,7 +53,7 @@ class StdOutListener(StreamListener):
 
             if (datetime.now().timestamp() - last_updated['value']) > TWEET_PERIOD_SECONDS:
                 for key in list(words_encountered.keys())[::-1]:
-                    if len(words_encountered[key]) > 1:
+                    if len(words_encountered[key]) > 1 and key not in boring_words:
                         print('tweeting pair')
                         tweet_pair(words_encountered, key)
                         del words_encountered[key]

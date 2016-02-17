@@ -14,6 +14,8 @@ CONSUMER_SECRET = os.environ['OWT_API_SECRET']
 ACCESS_TOKEN = os.environ['OWT_ACCESS_TOKEN']
 ACCESS_TOKEN_SECRET = os.environ['OWT_ACCESS_TOKEN_SECRET']
 
+TWEET_PERIOD_SECONDS = 300
+
 last_updated = {'value': datetime(1999,1,1).timestamp()}
 class StdOutListener(StreamListener):
     """ A listener handles tweets that are received from the stream.
@@ -24,7 +26,7 @@ class StdOutListener(StreamListener):
         self.tweet = None
 
     def on_data(self, data):
-        if (datetime.now().timestamp() - last_updated['value']) > 900:
+        if (datetime.now().timestamp() - last_updated['value']) > TWEET_PERIOD_SECONDS:
             tweet_dict = json.loads(data)
             words = tweet_dict['text'].strip().split() if 'text' in tweet_dict else []
             if (len(words) == 2 and words[1].startswith('https') and 'media' in tweet_dict['entities']

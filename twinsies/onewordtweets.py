@@ -49,7 +49,7 @@ class OneWordTweetListener(StreamListener):
                 del words_encountered[old_key]
 
             if (datetime.now().timestamp() - last_updated['value']) > TWEET_PERIOD_SECONDS:
-                for key in list(words_encountered.keys())[::-1]:
+                for key in list(words_encountered.keys()):
                     if len(words_encountered[key]) > 1 and key not in boring_words:
                         print('tweeting pair')
                         tweet_pair(words_encountered, key)

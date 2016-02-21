@@ -24,7 +24,7 @@ last_updated = {'value': datetime(1999,1,1).timestamp()}
 
 #Maps word to (screen_name, tweet_id, link)
 words_encountered = OrderedDict()
-boring_words = {'Mood'}
+boring_words = {'Mood', 'Test'}
 MAX_WORDS = 1000
 
 class OneWordTweetListener(StreamListener):

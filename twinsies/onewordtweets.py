@@ -78,7 +78,7 @@ def is_one_word_tweet(tweet_dict, words):
     return (len(words) == 2 and
         words[1].startswith('https') and
         'media' in tweet_dict['entities'] and
-        not tweet_dict['possibly_sensitive'])
+        tweet_dict['possibly_sensitive'] == False)
 
 def normalize_word(word):
     return ''.join([x for x in word if x in LETTERS]).title()

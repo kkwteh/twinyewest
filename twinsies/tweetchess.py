@@ -53,8 +53,8 @@ def get_move(mention):
         return None
 
     a, b = tuple(words)
-    move = a if HANDLE in b else a
-    print(move)
+    move = a if HANDLE in b else b
+
     try:
         resources['board'].parse_san(move)
         return move
